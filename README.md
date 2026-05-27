@@ -1,1 +1,14 @@
-# airfare-budget-hunter-skill
+# ✈️ 高雄直飛峴港 - 便宜機票獵人工作流程專案 (Airfare Budget Hunter)
+
+這個專案展示了如何將「尋找高性價比便宜機票」的雜亂過程，封裝成一個可重複執行的 **AI 工作流程 Skill**。本專案以南部大學生背包客最愛的「高雄 (KHH) ➡️ 越南峴港 (DAD)」為主題，展現如何將機票搜尋邏輯、行李分配與預算控制結構化。
+
+## 📂 專案資料夾結構說明
+- `SKILL.md`: 便宜機票獵人 Skill 的核心角色定義、搜尋原則與工作流規範。
+- `assets/`: 存放示範用的使用者對話輸入範本（`example_prompt.txt`）。
+- `references/`: 存放規範 AI 產出格式的標準分析範本（`itinerary_template.md`）。
+- `demo/`: 運用本 Skill 產出的具體期末作品成果（包含分析報告與 HTML 互動看板）。
+
+## 🚀 如何使用這個工具？
+1. 打開 `assets/example_prompt.txt` 複製裡面的示範需求。
+2. 將需求與 `SKILL.md` 的規則餵給 AI 工具。
+3. AI 將會自動依照規範，為你產出如 `demo/` 資料夾中一樣完美的機票分析與視覺網頁。
