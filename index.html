@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>便宜機票獵人 - 高雄 ➡️ 峴港比價看板</title>
+    <title>便宜機票獵人 - 智慧搜尋看板</title>
     <style>
         :root {
             --primary: #111827;
+            --secondary: #3b82f6;
             --tiger: #f39c12;
             --vietjet: #e74c3c;
             --bg: #f3f4f6;
             --card-bg: #ffffff;
         }
         body {
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', Arial, sans-serif;
             background-color: var(--bg);
             margin: 0;
             padding: 20px;
@@ -23,102 +24,219 @@
             max-width: 900px;
             margin: 0 auto;
         }
+        /* 頂部標題 */
         header {
             text-align: center;
-            padding: 35px;
-            background: linear-gradient(135deg, #2c3e50, #111827);
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #1e3a8a, #111827);
             color: white;
             border-radius: 16px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
         }
-        h1 { margin: 0; font-size: 26px; }
-        .subtitle { font-size: 14px; opacity: 0.8; margin-top: 8px; }
-        
+        h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: 1px; }
+        .subtitle { font-size: 15px; opacity: 0.8; margin-top: 10px; }
+
+        /* 搜尋控制面板 */
+        .search-panel {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .input-group label { font-size: 12px; font-weight: bold; color: #6b7280; }
+        .input-group input, .input-group select {
+            padding: 10px 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            background-color: #f9fafb;
+        }
+        .search-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 18px;
+        }
+        .search-btn:hover { background-color: #2563eb; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+
+        /* 載入動畫 */
+        .loader-container {
+            display: none;
+            text-align: center;
+            padding: 40px 0;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--secondary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 網格與卡片 */
         .grid {
-            display: grid;
+            display: none; /* 初始隱藏，按鈕後顯示 */
             grid-template-columns: 1fr 1fr;
             gap: 25px;
+            animation: fadeIn 0.8s ease-out forwards;
         }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
 
         .card {
             background: var(--card-bg);
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            border: 2px solid transparent;
-            transition: transform 0.2s;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            border-top: 5px solid transparent;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
-        .card:hover { transform: translateY(-5px); }
-        .card-tiger { border-color: var(--tiger); }
-        .card-vietjet { border-color: var(--vietjet); }
+        .card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .card-tiger { border-top-color: var(--tiger); }
+        .card-vietjet { border-top-color: var(--vietjet); }
 
-        .badge {
-            padding: 8px 16px;
-            font-size: 12px;
-            font-weight: bold;
-            color: white;
-            text-align: center;
-        }
+        .badge { padding: 10px; font-size: 13px; font-weight: bold; color: white; text-align: center; }
         .badge-tiger { background-color: var(--tiger); }
         .badge-vietjet { background-color: var(--vietjet); }
 
         .card-body { padding: 25px; }
-        .title { font-size: 22px; font-weight: bold; color: var(--primary); margin-bottom: 10px; }
-        .price { font-size: 34px; font-weight: 900; color: #dc2626; margin-bottom: 20px; }
+        .title { font-size: 20px; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .price { font-size: 32px; font-weight: 900; color: #dc2626; margin-bottom: 20px; border-bottom: 2px solid #f3f4f6; padding-bottom: 15px;}
         .price span { font-size: 14px; color: #6b7280; font-weight: normal; }
 
-        .row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px dashed #e5e7eb;
-            font-size: 14px;
-        }
-        .row:last-child { border-bottom: none; }
+        .row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; }
         .label { font-weight: bold; color: #4b5563; }
-        .val { text-align: right; }
+        .val { text-align: right; color: #111827; }
+
+        /* 動作按鈕 */
+        .action-btn {
+            display: block;
+            width: 100%;
+            padding: 12px 0;
+            margin-top: 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .action-btn:hover { opacity: 0.8; }
+        .btn-tiger { background-color: var(--primary); }
+        .btn-vietjet { background-color: var(--primary); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>🇲🇳 便宜機票獵人：高雄小港 (KHH) ➡️ 越南峴港 (DAD)</h1>
-        <div class="subtitle">南部大學生首選・5天4夜渡假高CP值決策看板（預算目標：$8,500）</div>
+        <h1>✈️ 便宜機票獵人 (Airfare Budget Hunter)</h1>
+        <div class="subtitle">AI 智能排序・幫你抓出隱藏版高 CP 值機票</div>
     </header>
 
-    <div class="grid">
+    <div class="search-panel">
+        <div class="input-group">
+            <label>出發地</label>
+            <select disabled><option>高雄小港 (KHH)</option></select>
+        </div>
+        <div class="input-group">
+            <label>目的地</label>
+            <select disabled><option>越南峴港 (DAD)</option></select>
+        </div>
+        <div class="input-group">
+            <label>預計出發月份</label>
+            <input type="month" value="2026-09">
+        </div>
+        <div class="input-group">
+            <label>預算上限 (NT$)</label>
+            <input type="number" value="8500" step="500">
+        </div>
+        <button class="search-btn" onclick="startSearch()">啟動獵人演算</button>
+    </div>
+
+    <div class="loader-container" id="loader">
+        <div class="loader"></div>
+        <div style="font-weight: bold; color: #6b7280;">AI 正在套用 Skill 規則篩選航班...</div>
+    </div>
+
+    <div class="grid" id="resultsGrid">
         <div class="card card-tiger">
-            <div class="badge badge-tiger">🐯 獵人強力推薦（時間最舒適、完美免紅眼）</div>
+            <div class="badge badge-tiger">🐯 綜合評分最高（舒適度滿分、免紅眼）</div>
             <div class="card-body">
-                <div class="title">台灣虎航 (Tigerair)</div>
-                <div class="price">NT$ 6,500 <span>/ 含回程20kg托運</span></div>
+                <div class="title">台灣虎航 (Tigerair Taiwan)</div>
+                <div class="price">NT$ 6,500<br><span>含回程 20kg 托運行李</span></div>
                 
-                <div class="row"><div class="label">出發機場</div><div class="val">高雄小港機場 (KHH) 直飛</div></div>
-                <div class="row"><div class="label">去程班機</div><div class="val">15:55 ➡️ 17:15 (下課出發剛好)</div></div>
-                <div class="row"><div class="label">回程班機</div><div class="val">18:15 ➡️ 21:45 (最後一天玩到傍晚)</div></div>
-                <div class="row"><div class="label">行李配置</div><div class="val">去程手提 10kg / 回程托運 20kg</div></div>
-                <div class="row"><div class="label">獵人分析</div><div class="val" style="color:var(--tiger); font-weight:bold;">時間帶完美，回南部完全不趕，大推！</div></div>
+                <div class="row"><div class="label">去程時間</div><div class="val">15:55 ➡️ 17:15</div></div>
+                <div class="row"><div class="label">回程時間</div><div class="val">18:15 ➡️ 21:45</div></div>
+                <div class="row"><div class="label">行李策略</div><div class="val">去程手提 / 回程買爆</div></div>
+                <div class="row" style="margin-top:10px;"><div class="label" style="color:var(--tiger);">💡 獵人點評</div><div class="val" style="font-weight:bold; font-size:13px;">時間帶極佳，下課出發剛剛好！</div></div>
+                
+                <button class="action-btn btn-tiger" onclick="bookFlight('台灣虎航')">前往官網搶票</button>
             </div>
         </div>
 
         <div class="card card-vietjet">
-            <div class="badge badge-vietjet">✈️ 預算極致壓榨（早去午回、玩好玩滿）</div>
+            <div class="badge badge-vietjet">✈️ 預算極致壓榨（早去午回玩好玩滿）</div>
             <div class="card-body">
                 <div class="title">越捷航空 (VietJet Air)</div>
-                <div class="price">NT$ 5,900 <span>/ 純手提（加行李約 $7,000）</span></div>
+                <div class="price">NT$ 5,900<br><span>純手提 (加行李約 $7k)</span></div>
                 
-                <div class="row"><div class="label">出發機場</div><div class="val">高雄小港機場 (KHH) 直飛</div></div>
-                <div class="row"><div class="label">去程班機</div><div class="val">08:40 ➡️ 10:15 (第一天就開玩)</div></div>
-                <div class="row"><div class="label">回程班機</div><div class="val">11:15 ➡️ 14:45</div></div>
-                <div class="row"><div class="label">行李配置</div><div class="val">去程手提 7kg / 可額外加購托運</div></div>
-                <div class="row"><div class="label">獵人分析</div><div class="val" style="color:var(--vietjet); font-weight:bold;">落地立刻開始行程，適合體力充沛的背包客。</div></div>
+                <div class="row"><div class="label">去程時間</div><div class="val">08:40 ➡️ 10:15</div></div>
+                <div class="row"><div class="label">回程時間</div><div class="val">11:15 ➡️ 14:45</div></div>
+                <div class="row"><div class="label">行李策略</div><div class="val">極簡背包客挑戰</div></div>
+                <div class="row" style="margin-top:10px;"><div class="label" style="color:var(--vietjet);">💡 獵人點評</div><div class="val" style="font-weight:bold; font-size:13px;">落地立刻開始玩，體力派首選！</div></div>
+
+                <button class="action-btn btn-vietjet" onclick="bookFlight('越捷航空')">前往官網搶票</button>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    // 模擬 AI 搜尋載入過程
+    function startSearch() {
+        // 隱藏結果，顯示載入動畫
+        document.getElementById('resultsGrid').style.display = 'none';
+        document.getElementById('loader').style.display = 'block';
+        
+        // 模擬延遲 1.5 秒後顯示結果
+        setTimeout(function() {
+            document.getElementById('loader').style.display = 'none';
+            document.getElementById('resultsGrid').style.display = 'grid';
+            
+            // 讓網頁平滑滾動到結果區域
+            document.getElementById('resultsGrid').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 1500);
+    }
+
+    // 模擬點擊訂票按鈕的回饋
+    function bookFlight(airline) {
+        alert("✅ 獵人已為您鎖定【" + airline + "】的優惠價格！\n\n這是一個期末專案的模擬展示，實際運作時將會跳轉至該航空公司的訂票頁面。");
+    }
+</script>
 
 </body>
 </html>
