@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
@@ -77,6 +77,7 @@
             margin-top: 18px;
         }
         .search-btn:hover { background-color: #2563eb; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        .search-btn:disabled { background-color: #9ca3af; cursor: not-allowed; transform: none; box-shadow: none; }
 
         /* 載入動畫 */
         .loader-container {
@@ -97,7 +98,7 @@
 
         /* 網格與卡片 */
         .grid {
-            display: none; /* 初始隱藏，按鈕後顯示 */
+            display: grid; /* 預設顯示，避免一開始畫面空空的 */
             grid-template-columns: 1fr 1fr;
             gap: 25px;
             animation: fadeIn 0.8s ease-out forwards;
@@ -174,7 +175,7 @@
             <label>預算上限 (NT$)</label>
             <input type="number" value="8500" step="500">
         </div>
-        <button class="search-btn" onclick="startSearch()">啟動獵人演算</button>
+        <button class="search-btn" id="mainSearchBtn" onclick="startSearch()">啟動獵人演算</button>
     </div>
 
     <div class="loader-container" id="loader">
@@ -218,17 +219,25 @@
 <script>
     // 模擬 AI 搜尋載入過程
     function startSearch() {
-        // 隱藏結果，顯示載入動畫
-        document.getElementById('resultsGrid').style.display = 'none';
-        document.getElementById('loader').style.display = 'block';
+        var grid = document.getElementById('resultsGrid');
+        var loader = document.getElementById('loader');
+        var btn = document.getElementById('mainSearchBtn');
+
+        // 隱藏結果，顯示載入動畫，按鈕變更狀態
+        grid.style.display = 'none';
+        loader.style.display = 'block';
+        btn.disabled = true;
+        btn.innerText = '運算中...';
         
         // 模擬延遲 1.5 秒後顯示結果
         setTimeout(function() {
-            document.getElementById('loader').style.display = 'none';
-            document.getElementById('resultsGrid').style.display = 'grid';
+            loader.style.display = 'none';
+            grid.style.display = 'grid';
+            btn.disabled = false;
+            btn.innerText = '重新啟動獵人演算';
             
             // 讓網頁平滑滾動到結果區域
-            document.getElementById('resultsGrid').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 1500);
     }
 
