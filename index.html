@@ -33,48 +33,55 @@
             border-radius: 16px;
             margin-bottom: 20px;
             box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
         }
-        h1 { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: 1px; }
+        h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 1px; }
         .subtitle { font-size: 15px; opacity: 0.8; margin-top: 10px; }
 
         /* 搜尋控制面板 */
         .search-panel {
             background: var(--card-bg);
-            padding: 20px;
+            padding: 25px;
             border-radius: 12px;
             display: flex;
             gap: 15px;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
             margin-bottom: 30px;
             flex-wrap: wrap;
+            border-top: 4px solid var(--secondary);
         }
         .input-group {
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 8px;
+            flex: 1;
+            min-width: 150px;
         }
-        .input-group label { font-size: 12px; font-weight: bold; color: #6b7280; }
-        .input-group input, .input-group select {
-            padding: 10px 15px;
-            border: 1px solid #d1d5db;
+        .input-group label { font-size: 13px; font-weight: bold; color: #4b5563; }
+        .input-group input {
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 15px;
             outline: none;
-            background-color: #f9fafb;
+            transition: border-color 0.2s;
+            background-color: #fff;
         }
+        .input-group input:focus { border-color: var(--secondary); }
+        
         .search-btn {
             background-color: var(--secondary);
             color: white;
             border: none;
-            padding: 12px 25px;
+            padding: 14px 30px;
             border-radius: 8px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
-            margin-top: 18px;
+            height: 47px;
         }
         .search-btn:hover { background-color: #2563eb; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
         .search-btn:disabled { background-color: #9ca3af; cursor: not-allowed; transform: none; box-shadow: none; }
@@ -83,27 +90,27 @@
         .loader-container {
             display: none;
             text-align: center;
-            padding: 40px 0;
+            padding: 50px 0;
         }
         .loader {
             border: 4px solid #f3f3f3;
             border-top: 4px solid var(--secondary);
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 15px auto;
+            margin: 0 auto 20px auto;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* 網格與卡片 */
         .grid {
-            display: grid; /* 預設顯示，避免一開始畫面空空的 */
+            display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 25px;
-            animation: fadeIn 0.8s ease-out forwards;
+            animation: fadeIn 0.6s ease-out forwards;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
 
         .card {
@@ -114,7 +121,7 @@
             border-top: 5px solid transparent;
             transition: transform 0.3s, box-shadow 0.3s;
         }
-        .card:hover { transform: translateY(-8px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); }
         .card-tiger { border-top-color: var(--tiger); }
         .card-vietjet { border-top-color: var(--vietjet); }
 
@@ -129,7 +136,7 @@
 
         .row { display: flex; justify-content: space-between; padding: 10px 0; font-size: 14px; }
         .label { font-weight: bold; color: #4b5563; }
-        .val { text-align: right; color: #111827; }
+        .val { text-align: right; color: #111827; font-weight: 600; }
 
         /* 動作按鈕 */
         .action-btn {
@@ -153,97 +160,125 @@
 <body>
 
 <div class="container">
-    <header>
-        <h1>✈️ 便宜機票獵人 (Airfare Budget Hunter)</h1>
-        <div class="subtitle">AI 智能排序・幫你抓出隱藏版高 CP 值機票</div>
+    <header id="mainHeader">
+        <h1 id="headerTitle">✈️ 便宜機票獵人 (Airfare Budget Hunter)</h1>
+        <div class="subtitle" id="headerSubtitle">請輸入您的旅行需求，AI 智能排序幫您抓出隱藏版機票</div>
     </header>
 
     <div class="search-panel">
         <div class="input-group">
-            <label>出發地</label>
-            <select disabled><option>高雄小港 (KHH)</option></select>
+            <label>出發地 (Departure)</label>
+            <input type="text" id="inputDep" placeholder="例如：高雄 KHH" value="高雄小港 (KHH)">
         </div>
         <div class="input-group">
-            <label>目的地</label>
-            <select disabled><option>越南峴港 (DAD)</option></select>
+            <label>目的地 (Destination)</label>
+            <input type="text" id="inputDest" placeholder="例如：越南峴港 DAD" value="越南峴港 (DAD)">
         </div>
         <div class="input-group">
             <label>預計出發月份</label>
-            <input type="month" value="2026-09">
+            <input type="month" id="inputDate" value="2026-09">
         </div>
         <div class="input-group">
             <label>預算上限 (NT$)</label>
-            <input type="number" value="8500" step="500">
+            <input type="number" id="inputBudget" value="8500" step="500">
         </div>
         <button class="search-btn" id="mainSearchBtn" onclick="startSearch()">啟動獵人演算</button>
     </div>
 
     <div class="loader-container" id="loader">
         <div class="loader"></div>
-        <div style="font-weight: bold; color: #6b7280;">AI 正在套用 Skill 規則篩選航班...</div>
+        <div style="font-weight: bold; color: #3b82f6; font-size: 18px;" id="loadingText">分析各大航空資料庫中...</div>
+        <div style="color: #6b7280; font-size: 14px; margin-top: 8px;">正在套用您的專屬預算與行李規則</div>
     </div>
 
     <div class="grid" id="resultsGrid">
         <div class="card card-tiger">
-            <div class="badge badge-tiger">🐯 綜合評分最高（舒適度滿分、免紅眼）</div>
+            <div class="badge badge-tiger">🐯 獵人首選（舒適度滿分、免紅眼）</div>
             <div class="card-body">
-                <div class="title">台灣虎航 (Tigerair Taiwan)</div>
-                <div class="price">NT$ 6,500<br><span>含回程 20kg 托運行李</span></div>
+                <div class="title">推薦方案 A：傳統 / 優質廉航</div>
+                <div class="price" id="price1">NT$ 6,500<br><span>含回程 20kg 托運行李</span></div>
                 
-                <div class="row"><div class="label">去程時間</div><div class="val">15:55 ➡️ 17:15</div></div>
-                <div class="row"><div class="label">回程時間</div><div class="val">18:15 ➡️ 21:45</div></div>
+                <div class="row"><div class="label">航線方向</div><div class="val" id="route1">高雄小港 ➡️ 越南峴港</div></div>
+                <div class="row"><div class="label">去程時間</div><div class="val">下午時段出發 (不趕車)</div></div>
+                <div class="row"><div class="label">回程時間</div><div class="val">晚間時段回程 (玩好玩滿)</div></div>
                 <div class="row"><div class="label">行李策略</div><div class="val">去程手提 / 回程買爆</div></div>
-                <div class="row" style="margin-top:10px;"><div class="label" style="color:var(--tiger);">💡 獵人點評</div><div class="val" style="font-weight:bold; font-size:13px;">時間帶極佳，下課出發剛剛好！</div></div>
                 
-                <button class="action-btn btn-tiger" onclick="bookFlight('台灣虎航')">前往官網搶票</button>
+                <button class="action-btn btn-tiger" onclick="bookFlight()">前往官網搶票</button>
             </div>
         </div>
 
         <div class="card card-vietjet">
             <div class="badge badge-vietjet">✈️ 預算極致壓榨（早去午回玩好玩滿）</div>
             <div class="card-body">
-                <div class="title">越捷航空 (VietJet Air)</div>
-                <div class="price">NT$ 5,900<br><span>純手提 (加行李約 $7k)</span></div>
+                <div class="title">推薦方案 B：極致低成本航空</div>
+                <div class="price" id="price2">NT$ 5,900<br><span>純手提 (可額外加購行李)</span></div>
                 
-                <div class="row"><div class="label">去程時間</div><div class="val">08:40 ➡️ 10:15</div></div>
-                <div class="row"><div class="label">回程時間</div><div class="val">11:15 ➡️ 14:45</div></div>
+                <div class="row"><div class="label">航線方向</div><div class="val" id="route2">高雄小港 ➡️ 越南峴港</div></div>
+                <div class="row"><div class="label">去程時間</div><div class="val">早班機 (落地秒開玩)</div></div>
+                <div class="row"><div class="label">回程時間</div><div class="val">中午時段回程</div></div>
                 <div class="row"><div class="label">行李策略</div><div class="val">極簡背包客挑戰</div></div>
-                <div class="row" style="margin-top:10px;"><div class="label" style="color:var(--vietjet);">💡 獵人點評</div><div class="val" style="font-weight:bold; font-size:13px;">落地立刻開始玩，體力派首選！</div></div>
 
-                <button class="action-btn btn-vietjet" onclick="bookFlight('越捷航空')">前往官網搶票</button>
+                <button class="action-btn btn-vietjet" onclick="bookFlight()">前往官網搶票</button>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    // 模擬 AI 搜尋載入過程
     function startSearch() {
-        var grid = document.getElementById('resultsGrid');
-        var loader = document.getElementById('loader');
-        var btn = document.getElementById('mainSearchBtn');
+        // 1. 取得使用者實際輸入的值
+        const dep = document.getElementById('inputDep').value || '出發地';
+        const dest = document.getElementById('inputDest').value || '目的地';
+        const budget = parseInt(document.getElementById('inputBudget').value) || 8500;
+        
+        // 防呆：如果亂填數字
+        if(budget < 2000) {
+            alert("獵人提醒：預算太低啦！至少要設定 2000 元以上才買得到機票喔！");
+            return;
+        }
 
-        // 隱藏結果，顯示載入動畫，按鈕變更狀態
+        const grid = document.getElementById('resultsGrid');
+        const loader = document.getElementById('loader');
+        const btn = document.getElementById('mainSearchBtn');
+
+        // 2. 啟動過場動畫
         grid.style.display = 'none';
         loader.style.display = 'block';
         btn.disabled = true;
-        btn.innerText = '運算中...';
-        
-        // 模擬延遲 1.5 秒後顯示結果
+        btn.innerText = '機票演算中...';
+
+        // 3. 模擬 AI 抓取數據 (延遲 1.8 秒後呈現動態結果)
         setTimeout(function() {
+            // -- 動態計算符合使用者預算的假價格 --
+            // 方案 A 通常佔預算的 75%
+            const smartPrice1 = Math.floor(budget * 0.76 / 100) * 100; 
+            // 方案 B 通常佔預算的 65%
+            const smartPrice2 = Math.floor(budget * 0.65 / 100) * 100;
+
+            // -- 更新網頁畫面資料 --
+            document.getElementById('headerTitle').innerText = `✈️ ${dep} ➡️ ${dest} 最佳解答`;
+            document.getElementById('headerSubtitle').innerText = `已為您將預算控制在 NT$ ${budget.toLocaleString()} 內，以下是演算結果：`;
+            
+            document.getElementById('price1').innerHTML = `NT$ ${smartPrice1.toLocaleString()}<br><span>含回程托運行李 (完美符合預算)</span>`;
+            document.getElementById('price2').innerHTML = `NT$ ${smartPrice2.toLocaleString()}<br><span>純手提 (還剩 $${(budget - smartPrice2).toLocaleString()} 可吃大餐)</span>`;
+            
+            document.getElementById('route1').innerText = `${dep} ➡️ ${dest}`;
+            document.getElementById('route2').innerText = `${dep} ➡️ ${dest}`;
+
+            // 恢復 UI 狀態
             loader.style.display = 'none';
             grid.style.display = 'grid';
             btn.disabled = false;
             btn.innerText = '重新啟動獵人演算';
             
-            // 讓網頁平滑滾動到結果區域
-            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 1500);
+            // 平滑滾動到結果
+            document.getElementById('mainHeader').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 1800);
     }
 
-    // 模擬點擊訂票按鈕的回饋
-    function bookFlight(airline) {
-        alert("✅ 獵人已為您鎖定【" + airline + "】的優惠價格！\n\n這是一個期末專案的模擬展示，實際運作時將會跳轉至該航空公司的訂票頁面。");
+    function bookFlight() {
+        const dest = document.getElementById('inputDest').value;
+        alert("✅ 獵人已為您鎖定飛往【" + dest + "】的專屬優惠！\n\n(期末專案展示：實際運作時將自動跳轉至第三方訂票系統)");
     }
 </script>
 
