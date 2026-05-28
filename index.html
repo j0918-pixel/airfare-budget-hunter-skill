@@ -20,11 +20,8 @@
             padding: 20px;
             color: #374151;
         }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        /* 頂部標題 */
+        .container { max-width: 900px; margin: 0 auto; }
+        
         header {
             text-align: center;
             padding: 40px 20px;
@@ -33,12 +30,10 @@
             border-radius: 16px;
             margin-bottom: 20px;
             box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
         }
         h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: 1px; }
         .subtitle { font-size: 15px; opacity: 0.8; margin-top: 10px; }
 
-        /* 搜尋控制面板 */
         .search-panel {
             background: var(--card-bg);
             padding: 25px;
@@ -60,17 +55,22 @@
             min-width: 150px;
         }
         .input-group label { font-size: 13px; font-weight: bold; color: #4b5563; }
-        /* 將 input 與 select 的樣式統一 */
+        
         .input-group input, .input-group select {
             padding: 12px 15px;
             border: 2px solid #e5e7eb;
             border-radius: 8px;
             font-size: 15px;
             outline: none;
-            transition: border-color 0.2s;
             background-color: #fff;
             cursor: pointer;
             font-family: inherit;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .input-group select {
+            appearance: menulist;
+            -webkit-appearance: menulist;
         }
         .input-group input:focus, .input-group select:focus { border-color: var(--secondary); }
         
@@ -85,11 +85,11 @@
             cursor: pointer;
             transition: all 0.2s;
             height: 47px;
+            white-space: nowrap;
         }
-        .search-btn:hover { background-color: #2563eb; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
-        .search-btn:disabled { background-color: #9ca3af; cursor: not-allowed; transform: none; box-shadow: none; }
+        .search-btn:hover { background-color: #2563eb; transform: translateY(-2px); }
+        .search-btn:disabled { background-color: #9ca3af; cursor: not-allowed; transform: none; }
 
-        /* 載入動畫 */
         .loader-container { display: none; text-align: center; padding: 50px 0; }
         .loader {
             border: 4px solid #f3f3f3;
@@ -102,17 +102,11 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* 網格與卡片 */
-        .grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            animation: fadeIn 0.6s ease-out forwards;
-        }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; animation: fadeIn 0.6s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } }
 
-        .card { background: var(--card-bg); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-top: 5px solid transparent; transition: transform 0.3s, box-shadow 0.3s; }
+        .card { background: var(--card-bg); border-radius: 16px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); border-top: 5px solid transparent; transition: transform 0.3s; }
         .card:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.15); }
         .card-tiger { border-top-color: var(--tiger); }
         .card-vietjet { border-top-color: var(--vietjet); }
@@ -130,7 +124,6 @@
         .label { font-weight: bold; color: #4b5563; }
         .val { text-align: right; color: #111827; font-weight: 600; }
 
-        /* 動作按鈕 */
         .action-btn { display: block; width: 100%; padding: 12px 0; margin-top: 20px; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; color: white; cursor: pointer; transition: opacity 0.2s; }
         .action-btn:hover { opacity: 0.8; }
         .btn-tiger { background-color: var(--primary); }
@@ -149,11 +142,12 @@
         <div class="input-group">
             <label>出發地 (Departure)</label>
             <select id="inputDep" onchange="updateDestinations()">
-                <option value="高雄小港 (KHH)">高雄小港 (KHH)</option>
                 <option value="桃園國際機場 (TPE)">桃園國際機場 (TPE)</option>
+                <option value="高雄小港 (KHH)">高雄小港 (KHH)</option>
                 <option value="台北松山 (TSA)">台北松山 (TSA)</option>
                 <option value="台中清泉崗 (RMQ)">台中清泉崗 (RMQ)</option>
                 <option value="台南機場 (TNN)">台南機場 (TNN)</option>
+                <option value="花蓮機場 (HUN)">花蓮機場 (HUN)</option>
             </select>
         </div>
         <div class="input-group">
@@ -174,7 +168,7 @@
 
     <div class="loader-container" id="loader">
         <div class="loader"></div>
-        <div style="font-weight: bold; color: #3b82f6; font-size: 18px;" id="loadingText">分析各大航空資料庫中...</div>
+        <div style="font-weight: bold; color: #3b82f6; font-size: 18px;">分析各大航空資料庫中...</div>
         <div style="color: #6b7280; font-size: 14px; margin-top: 8px;">正在套用您的專屬預算與行李規則</div>
     </div>
 
@@ -184,7 +178,7 @@
             <div class="card-body">
                 <div class="title">推薦方案 A：優質傳統/廉航</div>
                 <div class="price" id="price1">NT$ 6,500<br><span>含回程 20kg 托運行李</span></div>
-                <div class="row"><div class="label">航線方向</div><div class="val" id="route1">高雄小港 ➡️ 越南峴港</div></div>
+                <div class="row"><div class="label">航線方向</div><div class="val" id="route1">桃園國際 ➡️ 東京成田</div></div>
                 <div class="row"><div class="label">去程時間</div><div class="val">下午時段出發 (不趕車)</div></div>
                 <div class="row"><div class="label">回程時間</div><div class="val">晚間時段回程 (玩好玩滿)</div></div>
                 <div class="row"><div class="label">行李策略</div><div class="val">去程手提 / 回程買爆</div></div>
@@ -197,7 +191,7 @@
             <div class="card-body">
                 <div class="title">推薦方案 B：極致低成本航空</div>
                 <div class="price" id="price2">NT$ 5,900<br><span>純手提 (可額外加購行李)</span></div>
-                <div class="row"><div class="label">航線方向</div><div class="val" id="route2">高雄小港 ➡️ 越南峴港</div></div>
+                <div class="row"><div class="label">航線方向</div><div class="val" id="route2">桃園國際 ➡️ 東京成田</div></div>
                 <div class="row"><div class="label">去程時間</div><div class="val">早班機 (落地秒開玩)</div></div>
                 <div class="row"><div class="label">回程時間</div><div class="val">中午時段回程</div></div>
                 <div class="row"><div class="label">行李策略</div><div class="val">極簡背包客挑戰</div></div>
@@ -208,28 +202,51 @@
 </div>
 
 <script>
-    // 建立航線資料庫 (出發地對應的合理目的地)
+    // 【擴充版】航線資料庫：涵蓋全亞洲熱門航點
     const flightRoutes = {
-        "高雄小港 (KHH)": ["越南峴港 (DAD)", "日本東京 (NRT)", "日本大阪 (KIX)", "韓國首爾 (ICN)", "泰國曼谷 (BKK/DMK)", "澳門 (MFM)"],
-        "桃園國際機場 (TPE)": ["日本東京 (NRT/HND)", "日本大阪 (KIX)", "韓國首爾 (ICN)", "泰國曼谷 (BKK/DMK)", "越南峴港 (DAD)", "越南胡志明市 (SGN)", "新加坡 (SIN)", "美國洛杉磯 (LAX)"],
-        "台北松山 (TSA)": ["日本東京 (HND)", "韓國首爾 (GMP)", "中國上海 (SHA)", "金門 (KNH)", "澎湖 (MZG)"],
-        "台中清泉崗 (RMQ)": ["越南胡志明市 (SGN)", "韓國首爾 (ICN)", "澳門 (MFM)", "香港 (HKG)", "澎湖 (MZG)"],
-        "台南機場 (TNN)": ["越南胡志明市 (SGN)", "金門 (KNH)", "澎湖 (MZG)"] // 台南沒有直飛東京，防呆成功！
+        "桃園國際機場 (TPE)": [
+            "日本東京成田 (NRT)", "日本東京羽田 (HND)", "日本大阪關西 (KIX)", "日本沖繩那霸 (OKA)", "日本福岡 (FUK)", "日本札幌新千歲 (CTS)", "日本名古屋 (NGO)",
+            "韓國首爾仁川 (ICN)", "韓國釜山 (PUS)", "韓國濟州島 (CJU)",
+            "泰國曼谷蘇凡納布 (BKK)", "泰國曼谷廊曼 (DMK)", "泰國清邁 (CNX)",
+            "越南胡志明市 (SGN)", "越南河內 (HAN)", "越南峴港 (DAD)", "越南富國島 (PQC)",
+            "菲律賓馬尼拉 (MNL)", "菲律賓宿霧 (CEB)", "菲律賓長灘島 (KLO)",
+            "馬來西亞吉隆坡 (KUL)", "新加坡 (SIN)", "印尼峇里島 (DPS)", "澳門 (MFM)", "香港 (HKG)"
+        ],
+        "高雄小港 (KHH)": [
+            "日本東京成田 (NRT)", "日本大阪關西 (KIX)", "日本沖繩那霸 (OKA)", "日本福岡 (FUK)", "日本名古屋 (NGO)",
+            "韓國首爾仁川 (ICN)", "韓國首爾金浦 (GMP)", "韓國釜山 (PUS)",
+            "泰國曼谷蘇凡納布 (BKK)", "泰國曼谷廊曼 (DMK)",
+            "越南胡志明市 (SGN)", "越南河內 (HAN)", "越南峴港 (DAD)",
+            "菲律賓馬尼拉 (MNL)", "馬來西亞吉隆坡 (KUL)", "新加坡 (SIN)",
+            "澳門 (MFM)", "香港 (HKG)"
+        ],
+        "台北松山 (TSA)": [
+            "日本東京羽田 (HND)", "韓國首爾金浦 (GMP)", 
+            "中國上海虹橋 (SHA)", "中國福州 (FOC)", "中國廈門 (XMN)",
+            "金門尚義 (KNH)", "澎湖馬公 (MZG)", "台東豐年 (TTT)", "花蓮 (HUN)"
+        ],
+        "台中清泉崗 (RMQ)": [
+            "越南胡志明市 (SGN)", "越南河內 (HAN)", "越南峴港 (DAD)",
+            "韓國首爾仁川 (ICN)", "韓國釜山 (PUS)",
+            "日本名古屋 (NGO)", "日本東京成田 (NRT)",
+            "澳門 (MFM)", "香港 (HKG)", "金門尚義 (KNH)", "澎湖馬公 (MZG)"
+        ],
+        "台南機場 (TNN)": [
+            "越南胡志明市 (SGN)", "日本大阪關西 (KIX)", 
+            "金門尚義 (KNH)", "澎湖馬公 (MZG)"
+        ],
+        "花蓮機場 (HUN)": [
+            "台北松山 (TSA)", "台中清泉崗 (RMQ)", "高雄小港 (KHH)"
+        ]
     };
 
-    // 當出發地改變時，自動更新目的地選單的函數
     function updateDestinations() {
         const depSelect = document.getElementById('inputDep');
         const destSelect = document.getElementById('inputDest');
         const selectedDep = depSelect.value;
-        
-        // 取得該出發地對應的目的地陣列
         const availableDests = flightRoutes[selectedDep];
         
-        // 清空原本的目的地選單
         destSelect.innerHTML = '';
-        
-        // 將新的目的地逐一加入選單
         availableDests.forEach(function(dest) {
             const option = document.createElement('option');
             option.value = dest;
@@ -238,12 +255,12 @@
         });
     }
 
-    // 網頁載入完成時，先執行一次更新，讓預設的(高雄)有目的地可選
     window.onload = function() {
+        // 將預設選項設為桃園，觸發清單更新
+        document.getElementById('inputDep').value = "桃園國際機場 (TPE)";
         updateDestinations();
     };
 
-    // 獵人搜尋演算核心
     function startSearch() {
         const dep = document.getElementById('inputDep').value;
         const dest = document.getElementById('inputDest').value;
@@ -264,15 +281,12 @@
         btn.innerText = '機票演算中...';
 
         setTimeout(function() {
-            // 動態計算符合預算的價格
             const smartPrice1 = Math.floor(budget * 0.76 / 100) * 100; 
             const smartPrice2 = Math.floor(budget * 0.65 / 100) * 100;
 
-            // 擷取機場代碼 (例如將 "高雄小港 (KHH)" 變成 "KHH") 用於簡短顯示
-            const depShort = dep.split(" ")[1] || dep;
-            const destShort = dest.split(" ")[1] || dest;
+            const depShort = dep.split(" ")[0]; 
+            const destShort = dest.split(" ")[0];
 
-            // 更新畫面資料
             document.getElementById('headerTitle').innerText = `✈️ ${depShort} ➡️ ${destShort} 最佳解答`;
             document.getElementById('headerSubtitle').innerText = `已為您將預算控制在 NT$ ${budget.toLocaleString()} 內，以下是演算結果：`;
             
