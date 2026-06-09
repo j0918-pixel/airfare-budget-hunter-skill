@@ -74,6 +74,17 @@
         }
         .input-group input:focus, .input-group select:focus { border-color: var(--secondary); }
         
+        /* 即時天數提示框樣式 */
+        .days-notice-box {
+            width: 100%;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--secondary);
+            transition: all 0.2s;
+        }
+
         .search-btn {
             background-color: var(--secondary);
             color: white;
@@ -135,7 +146,7 @@
 <div class="container">
     <header id="mainHeader">
         <h1 id="headerTitle">✈️ 便宜機票獵人 (Airfare Budget Hunter)</h1>
-        <div class="subtitle" id="headerSubtitle">請選擇您的航線，AI 將自動為您抓出隱藏版機票</div>
+        <div class="subtitle" id="headerSubtitle">請選擇您的航線與出發日期，AI 將自動為您抓出隱藏版機票</div>
     </header>
 
     <div class="search-panel">
@@ -152,18 +163,25 @@
         </div>
         <div class="input-group">
             <label>目的地 (Destination)</label>
-            <select id="inputDest">
-                </select>
+            <select id="inputDest"></select>
+        </div>
+        
+        <div class="input-group">
+            <label>去程出發日期</label>
+            <input type="date" id="inputDepDate" value="2026-09-10" onchange="calculateTravelDays()">
         </div>
         <div class="input-group">
-            <label>出發月份</label>
-            <input type="month" id="inputDate" value="2026-09">
+            <label>回程返國日期</label>
+            <input type="date" id="inputRetDate" value="2026-09-14" onchange="calculateTravelDays()">
         </div>
+        
         <div class="input-group">
             <label>預算上限 (NT$)</label>
             <input type="number" id="inputBudget" value="8500" step="500">
         </div>
         <button class="search-btn" id="mainSearchBtn" onclick="startSearch()">啟動獵人演算</button>
+        
+        <div class="days-notice-box" id="daysNotice">📅 您已選擇：5 天 4 夜</div>
     </div>
 
     <div class="loader-container" id="loader">
@@ -176,7 +194,7 @@
         <div class="card card-tiger">
             <div class="badge badge-tiger">🐯 獵人首選（舒適度滿分、免紅眼）</div>
             <div class="card-body">
-                <div class="title">推薦方案 A：優質傳統/廉航</div>
+                <div class="title" id="cardTitle1">推薦方案 A：優質傳統/廉航 (5天4夜)</div>
                 <div class="price" id="price1">NT$ 6,500<br><span>含回程 20kg 托運行李</span></div>
                 <div class="row"><div class="label">航線方向</div><div class="val" id="route1">桃園國際 ➡️ 東京成田</div></div>
                 <div class="row"><div class="label">去程時間</div><div class="val">下午時段出發 (不趕車)</div></div>
@@ -189,7 +207,7 @@
         <div class="card card-vietjet">
             <div class="badge badge-vietjet">✈️ 預算極致壓榨（早去午回玩好玩滿）</div>
             <div class="card-body">
-                <div class="title">推薦方案 B：極致低成本航空</div>
+                <div class="title" id="cardTitle2">推薦方案 B：極致低成本航空 (5天4夜)</div>
                 <div class="price" id="price2">NT$ 5,900<br><span>純手提 (可額外加購行李)</span></div>
                 <div class="row"><div class="label">航線方向</div><div class="val" id="route2">桃園國際 ➡️ 東京成田</div></div>
                 <div class="row"><div class="label">去程時間</div><div class="val">早班機 (落地秒開玩)</div></div>
@@ -202,42 +220,13 @@
 </div>
 
 <script>
-    // 【擴充版】航線資料庫：涵蓋全亞洲熱門航點
     const flightRoutes = {
-        "桃園國際機場 (TPE)": [
-            "日本東京成田 (NRT)", "日本東京羽田 (HND)", "日本大阪關西 (KIX)", "日本沖繩那霸 (OKA)", "日本福岡 (FUK)", "日本札幌新千歲 (CTS)", "日本名古屋 (NGO)",
-            "韓國首爾仁川 (ICN)", "韓國釜山 (PUS)", "韓國濟州島 (CJU)",
-            "泰國曼谷蘇凡納布 (BKK)", "泰國曼谷廊曼 (DMK)", "泰國清邁 (CNX)",
-            "越南胡志明市 (SGN)", "越南河內 (HAN)", "越南峴港 (DAD)", "越南富國島 (PQC)",
-            "菲律賓馬尼拉 (MNL)", "菲律賓宿霧 (CEB)", "菲律賓長灘島 (KLO)",
-            "馬來西亞吉隆坡 (KUL)", "新加坡 (SIN)", "印尼峇里島 (DPS)", "澳門 (MFM)", "香港 (HKG)"
-        ],
-        "高雄小港 (KHH)": [
-            "日本東京成田 (NRT)", "日本大阪關西 (KIX)", "日本沖繩那霸 (OKA)", "日本福岡 (FUK)", "日本名古屋 (NGO)",
-            "韓國首爾仁川 (ICN)", "韓國首爾金浦 (GMP)", "韓國釜山 (PUS)",
-            "泰國曼谷蘇凡納布 (BKK)", "泰國曼谷廊曼 (DMK)",
-            "越南胡志明市 (SGN)", "越南河內 (HAN)", "越南峴港 (DAD)",
-            "菲律賓馬尼拉 (MNL)", "馬來西亞吉隆坡 (KUL)", "新加坡 (SIN)",
-            "澳門 (MFM)", "香港 (HKG)"
-        ],
-        "台北松山 (TSA)": [
-            "日本東京羽田 (HND)", "韓國首爾金浦 (GMP)", 
-            "中國上海虹橋 (SHA)", "中國福州 (FOC)", "中國廈門 (XMN)",
-            "金門尚義 (KNH)", "澎湖馬公 (MZG)", "台東豐年 (TTT)", "花蓮 (HUN)"
-        ],
-        "台中清泉崗 (RMQ)": [
-            "越南胡志明市 (SGN)", "越南河內 (HAN)", "越南峴港 (DAD)",
-            "韓國首爾仁川 (ICN)", "韓國釜山 (PUS)",
-            "日本名古屋 (NGO)", "日本東京成田 (NRT)",
-            "澳門 (MFM)", "香港 (HKG)", "金門尚義 (KNH)", "澎湖馬公 (MZG)"
-        ],
-        "台南機場 (TNN)": [
-            "越南胡志明市 (SGN)", "日本大阪關西 (KIX)", 
-            "金門尚義 (KNH)", "澎湖馬公 (MZG)"
-        ],
-        "花蓮機場 (HUN)": [
-            "台北松山 (TSA)", "台中清泉崗 (RMQ)", "高雄小港 (KHH)"
-        ]
+        "桃園國際機場 (TPE)": ["日本東京成田 (NRT)", "日本東京羽田 (HND)", "日本大阪關西 (KIX)", "日本沖繩那霸 (OKA)", "日本福岡 (FUK)", "日本札幌新千歲 (CTS)", "日本名古屋 (NGO)", "韓國首爾仁川 (ICN)", "韓國釜山 (PUS)", "韓國濟州島 (CJU)", "泰國曼谷蘇凡納布 (BKK)", "泰國曼谷廊曼 (DMK)", "泰國清邁 (CNX)", "越南胡志明市 (SGN)", "越南河內 (HAN)", "越南峴港 (DAD)", "越南富國島 (PQC)", "菲律賓馬尼拉 (MNL)", "菲律賓宿霧 (CEB)", "菲律賓長灘島 (KLO)", "馬來西亞吉隆坡 (KUL)", "新加坡 (SIN)", "印尼峇里島 (DPS)", "澳門 (MFM)", "香港 (HKG)"],
+        "高雄小港 (KHH)": ["日本東京成田 (NRT)", "日本大阪關西 (KIX)", "日本沖繩那霸 (OKA)", "日本福岡 (FUK)", "日本名古屋 (NGO)", "韓國首爾仁川 (ICN)", "韓國首爾金浦 (GMP)", "韓國釜山 (PUS)", "泰國曼谷蘇凡納布 (BKK)", "泰國曼谷廊曼 (DMK)", "越南胡志明市 (SGN)", "越南河內 (HAN)", "越南峴港 (DAD)", "菲律賓馬尼拉 (MNL)", "馬來西亞吉隆坡 (KUL)", "新加坡 (SIN)", "澳門 (MFM)", "香港 (HKG)"],
+        "台北松山 (TSA)": ["日本東京羽田 (HND)", "韓國首爾金浦 (GMP)", "中國上海虹橋 (SHA)", "中國福州 (FOC)", "中國廈門 (XMN)", "金門尚義 (KNH)", "澎湖馬公 (MZG)", "台東豐年 (TTT)", "花蓮 (HUN)"],
+        "台中清泉崗 (RMQ)": ["越南胡志明市 (SGN)", "越南河內 (HAN)", "越南峴港 (DAD)", "韓國首爾仁川 (ICN)", "韓國釜山 (PUS)", "日本名古屋 (NGO)", "日本東京成田 (NRT)", "澳門 (MFM)", "香港 (HKG)", "金門尚義 (KNH)", "澎湖馬公 (MZG)"],
+        "台南機場 (TNN)": ["越南胡志明市 (SGN)", "日本大阪關西 (KIX)", "金門尚義 (KNH)", "澎湖馬公 (MZG)"],
+        "花蓮機場 (HUN)": ["台北松山 (TSA)", "台中清泉崗 (RMQ)", "高雄小港 (KHH)"]
     };
 
     function updateDestinations() {
@@ -255,10 +244,41 @@
         });
     }
 
+    // 【新功能】核心天數計算與即時驗證函數
+    function calculateTravelDays() {
+        const depDateVal = document.getElementById('inputDepDate').value;
+        const retDateVal = document.getElementById('inputRetDate').value;
+        const notice = document.getElementById('daysNotice');
+        const btn = document.getElementById('mainSearchBtn');
+
+        if (!depDateVal || !retDateVal) return null;
+
+        const depDate = new Date(depDateVal);
+        const retDate = new Date(retDateVal);
+        
+        // 計算毫秒差並換算成天數
+        const diffTime = retDate - depDate;
+        const diffDays = diffTime / (1000 * 60 * 60 * 24);
+
+        if (diffDays < 0) {
+            notice.innerText = "❌ 錯誤：回程日期不能早於出發日期！";
+            notice.style.color = "#e74c3c";
+            btn.disabled = true; // 防呆鎖定按鈕
+            return null;
+        } else {
+            const days = diffDays + 1; // 天數 = 差額 + 1
+            const nights = diffDays;    // 夜數 = 差額
+            notice.innerText = `📅 您已選擇：${days} 天 ${nights} 夜`;
+            notice.style.color = "#3b82f6";
+            btn.disabled = false; // 解除鎖定
+            return { days, nights };
+        }
+    }
+
     window.onload = function() {
-        // 將預設選項設為桃園，觸發清單更新
         document.getElementById('inputDep').value = "桃園國際機場 (TPE)";
         updateDestinations();
+        calculateTravelDays(); // 初始計算一次
     };
 
     function startSearch() {
@@ -266,6 +286,13 @@
         const dest = document.getElementById('inputDest').value;
         const budget = parseInt(document.getElementById('inputBudget').value) || 8500;
         
+        // 抓取精確計算的天數資訊
+        const dateInfo = calculateTravelDays();
+        if (!dateInfo) {
+            alert("請檢查您的日期設定是否正確！");
+            return;
+        }
+
         if(budget < 2000) {
             alert("獵人提醒：預算太低啦！至少要設定 2000 元以上才買得到機票喔！");
             return;
@@ -287,10 +314,14 @@
             const depShort = dep.split(" ")[0]; 
             const destShort = dest.split(" ")[0];
 
+            // 連動更新網頁標題與小卡中的天數文案
             document.getElementById('headerTitle').innerText = `✈️ ${depShort} ➡️ ${destShort} 最佳解答`;
-            document.getElementById('headerSubtitle').innerText = `已為您將預算控制在 NT$ ${budget.toLocaleString()} 內，以下是演算結果：`;
+            document.getElementById('headerSubtitle').innerText = `已為您將 ${dateInfo.days} 天 ${dateInfo.nights} 夜的預算控制在 NT$ ${budget.toLocaleString()} 內，以下是決策結果：`;
             
-            document.getElementById('price1').innerHTML = `NT$ ${smartPrice1.toLocaleString()}<br><span>含回程托運行李 (完美符合預算)</span>`;
+            document.getElementById('cardTitle1').innerText = `推薦方案 A：優質傳統/廉航 (${dateInfo.days}天${dateInfo.nights}夜)`;
+            document.getElementById('cardTitle2').innerText = `推薦方案 B：極致低成本航空 (${dateInfo.days}天${dateInfo.nights}夜)`;
+
+            document.getElementById('price1').innerHTML = `NT$ ${smartPrice1.toLocaleString()}<br><span>含回程托運行微 (完美符合預算)</span>`;
             document.getElementById('price2').innerHTML = `NT$ ${smartPrice2.toLocaleString()}<br><span>純手提 (還剩 $${(budget - smartPrice2).toLocaleString()} 可吃大餐)</span>`;
             
             document.getElementById('route1').innerText = `${depShort} ➡️ ${destShort}`;
@@ -307,7 +338,7 @@
 
     function bookFlight() {
         const dest = document.getElementById('inputDest').value;
-        alert("✅ 獵人已為您鎖定飛往【" + dest + "】的專屬優惠！\n\n(期末專案展示：實際運作時將自動跳轉至第三方訂票系統)");
+        alert("✅ 獵人已為您鎖定專屬優惠！\n\n(期末專案展示：實際運作時將自動跳轉至第三方訂票系統)");
     }
 </script>
 
